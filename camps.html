@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Camps - Suhbah Soccer Camp</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="Logos/Crest No Banner.png">
+    <style>
+        /* Hero Section */
+        .camps-hero {
+            padding: 160px 0 100px;
+            background: linear-gradient(135deg, #0a0f0a 0%, #0d1a10 50%, #0a1a0f 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .camps-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(127, 176, 105, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(127, 176, 105, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(127, 176, 105, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        
+        .camps-hero::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(127, 176, 105, 0.08) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        
+        .camps-hero .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(127, 176, 105, 0.15);
+            border: 1px solid rgba(127, 176, 105, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            color: var(--primary-green);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            animation: fadeInDown 0.6s ease-out;
+        }
+        
+        .hero-badge i {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .camps-hero h1 {
+            font-family: 'Anton', sans-serif;
+            font-size: 4.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+        
+        .camps-hero h1 .highlight {
+            background: linear-gradient(135deg, var(--primary-green) 0%, #a8d990 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .camps-hero p {
+            color: #9ca3af;
+            font-size: 1.25rem;
+            max-width: 600px;
+            line-height: 1.8;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+        
+        /* Season Timeline */
+        .season-timeline {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+        
+        .season-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .season-item.active {
+            background: rgba(127, 176, 105, 0.15);
+            border-color: rgba(127, 176, 105, 0.4);
+        }
+        
+        .season-item .icon {
+            font-size: 1.5rem;
+        }
+        
+        .season-item .text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .season-item .name {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .season-item .status {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+        
+        .season-item.active .status {
+            color: var(--primary-green);
+        }
+        
+        .season-connector {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(127, 176, 105, 0.5), rgba(255, 255, 255, 0.1));
+            border-radius: 2px;
+        }
+        
+        /* Camps Section */
+        .camps-section {
+            padding: 100px 0;
+            background: linear-gradient(180deg, #0a1a0f 0%, var(--dark-bg) 100%);
+        }
+        
+        .camps-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+        
+        /* Camp Cards */
+        .camp-card {
+            background: linear-gradient(145deg, rgba(15, 25, 18, 0.98) 0%, rgba(10, 18, 12, 0.98) 100%);
+            border: 1px solid rgba(127, 176, 105, 0.15);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .camp-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(127, 176, 105, 0.5), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .camp-card:hover {
+            transform: translateY(-12px);
+            border-color: rgba(127, 176, 105, 0.3);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.4),
+                0 0 100px rgba(127, 176, 105, 0.1);
+        }
+        
+        .camp-card:hover::before {
+            opacity: 1;
+        }
+        
+        .camp-card.current {
+            border-color: rgba(127, 176, 105, 0.4);
+            box-shadow: 
+                0 0 60px rgba(127, 176, 105, 0.15),
+                inset 0 1px 0 rgba(127, 176, 105, 0.2);
+        }
+        
+        .camp-card.current::before {
+            opacity: 1;
+            background: linear-gradient(90deg, var(--primary-green), #a8d990, var(--primary-green));
+        }
+        
+        /* Camp Header */
+        .camp-header {
+            padding: 2.5rem;
+            background: linear-gradient(135deg, rgba(10, 30, 15, 0.95) 0%, rgba(20, 45, 25, 0.9) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .camp-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(127, 176, 105, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .camp-card.current .camp-header::before {
+            content: 'IN SESSION';
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-green), #5a9a42);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(127, 176, 105, 0.4);
+            animation: glow 2s ease-in-out infinite;
+            z-index: 1;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(127, 176, 105, 0.4); }
+            50% { box-shadow: 0 4px 25px rgba(127, 176, 105, 0.6); }
+        }
+        
+        .camp-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .camp-header h2 {
+            font-family: 'Manrope', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .camp-dates {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: var(--primary-green);
+            font-weight: 600;
+            font-size: 1.05rem;
+            background: rgba(127, 176, 105, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .camp-dates i {
+            font-size: 0.9rem;
+        }
+        
+        /* Camp Body */
+        .camp-body {
+            padding: 2rem 2.5rem 2.5rem;
+            background: linear-gradient(180deg, rgba(15, 25, 18, 0.98) 0%, rgba(10, 20, 12, 0.98) 100%);
+        }
+        
+        .camp-details {
+            margin-bottom: 2rem;
+        }
+        
+        .camp-detail {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+        }
+        
+        .camp-detail:hover {
+            padding-left: 0.5rem;
+        }
+        
+        .camp-detail:last-child {
+            border-bottom: none;
+        }
+        
+        .camp-detail .icon-wrap {
+            width: 40px;
+            height: 40px;
+            background: rgba(127, 176, 105, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .camp-detail .icon-wrap i {
+            color: var(--primary-green);
+            font-size: 1rem;
+        }
+        
+        .camp-detail span {
+            color: #e5e7eb;
+            font-size: 0.95rem;
+        }
+        
+        .camp-detail strong {
+            color: white;
+            font-weight: 700;
+        }
+        
+        /* Pricing */
+        .camp-pricing {
+            background: linear-gradient(135deg, rgba(127, 176, 105, 0.15) 0%, rgba(127, 176, 105, 0.05) 100%);
+            border: 1px solid rgba(127, 176, 105, 0.2);
+            border-radius: 16px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .camp-pricing::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(127, 176, 105, 0.2) 0%, transparent 70%);
+        }
+        
+        .camp-pricing h3 {
+            color: var(--primary-green);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        .camp-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: white;
+            font-family: 'Manrope', sans-serif;
+        }
+        
+        .camp-price span {
+            font-size: 1rem;
+            color: #9ca3af;
+            font-weight: 400;
+        }
+        
+        /* Includes List */
+        .camp-includes {
+            margin-bottom: 2rem;
+        }
+        
+        .camp-includes h4 {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .camp-includes h4::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 2px;
+        }
+        
+        .camp-includes ul {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .camp-includes li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.85rem;
+            color: #e5e7eb;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .camp-includes li i {
+            color: var(--primary-green);
+            font-size: 0.75rem;
+            margin-top: 0.35rem;
+            flex-shrink: 0;
+        }
+        
+        /* CTA Button */
+        .camp-cta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, var(--primary-green), #5a9a42);
+            color: white;
+            padding: 1.1rem 2rem;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .camp-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .camp-cta:hover::before {
+            left: 100%;
+        }
+        
+        .camp-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(127, 176, 105, 0.4);
+        }
+        
+        .camp-cta.disabled {
+            background: rgba(255, 255, 255, 0.08);
+            color: #6b7280;
+            cursor: not-allowed;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .camp-cta.disabled::before {
+            display: none;
+        }
+        
+        /* TBD Message */
+        .tbd-message {
+            text-align: center;
+            padding: 2.5rem 1rem;
+        }
+        
+        .tbd-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(127, 176, 105, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .tbd-icon i {
+            font-size: 2rem;
+            color: var(--primary-green);
+        }
+        
+        .tbd-message h3 {
+            color: white;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .tbd-message p {
+            color: #d1d5db;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .instagram-follow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .instagram-follow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(131, 58, 180, 0.3);
+        }
+        
+        /* Back Link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 4rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(127, 176, 105, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            background: rgba(127, 176, 105, 0.2);
+            gap: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .camps-grid {
+                grid-template-columns: 1fr;
+                max-width: 600px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .camps-hero {
+                padding: 120px 0 60px;
+            }
+            
+            .camps-hero h1 {
+                font-size: 3rem;
+            }
+            
+            .season-timeline {
+                flex-wrap: wrap;
+            }
+            
+            .season-connector {
+                display: none;
+            }
+            
+            .camp-header, .camp-body {
+                padding: 1.5rem;
+            }
+            
+            .camp-price {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Main">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <img src="Logos/Crest No Banner.png" alt="Suhbah Soccer by MJ2" class="logo-image" loading="lazy" decoding="async">
+                </a>
+            </div>
+            <ul class="nav-menu" id="primary-navigation">
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#coaches">Coaches</a></li>
+                <li><a href="index.html#programs">Programs</a></li>
+                <li><a href="index.html#reviews">Reviews</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <a href="index.html#services" class="nav-cta">Book Now</a>
+            <div class="hamburger" role="button" tabindex="0" aria-label="Toggle navigation" aria-controls="primary-navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+    <div class="nav-overlay" aria-hidden="true"></div>
+
+    <!-- Hero Section -->
+    <section class="camps-hero">
+        <div class="container">
+            <div class="hero-badge">
+                <i class="fas fa-futbol"></i>
+                Seasonal Training Programs
+            </div>
+            <h1>Soccer <span class="highlight">Camps</span></h1>
+            <p>Join our seasonal soccer camps designed to develop skills, build character, and create lasting friendships in an Islamic environment.</p>
+            
+            <div class="season-timeline">
+                <div class="season-item active">
+                    <span class="icon">❄️</span>
+                    <div class="text">
+                        <span class="name">Winter</span>
+                        <span class="status">In Session</span>
+                    </div>
+                </div>
+                <div class="season-connector"></div>
+                <div class="season-item">
+                    <span class="icon">🌸</span>
+                    <div class="text">
+                        <span class="name">Spring</span>
+                        <span class="status">Coming Soon</span>
+                    </div>
+                </div>
+                <div class="season-connector"></div>
+                <div class="season-item">
+                    <span class="icon">☀️</span>
+                    <div class="text">
+                        <span class="name">Summer</span>
+                        <span class="status">TBD</span>
+                    </div>
+                </div>
+                <div class="season-connector"></div>
+                <div class="season-item">
+                    <span class="icon">🍂</span>
+                    <div class="text">
+                        <span class="name">Fall</span>
+                        <span class="status">TBD</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Camps Section -->
+    <section class="camps-section">
+        <div class="container">
+            <div class="camps-grid">
+                <!-- Winter Camp - Current -->
+                <div class="camp-card current">
+                    <div class="camp-header">
+                        <div class="camp-icon">❄️</div>
+                        <h2>Winter Camp</h2>
+                        <div class="camp-dates">
+                            <i class="fas fa-calendar-alt"></i>
+                            January 3 - February 14, 2026
+                        </div>
+                    </div>
+                    <div class="camp-body">
+                        <div class="camp-details">
+                            <div class="camp-detail">
+                                <div class="icon-wrap">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <span><strong>Saturdays</strong> &nbsp;9:00 AM - 11:00 AM</span>
+                            </div>
+                            <div class="camp-detail">
+                                <div class="icon-wrap">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <span><strong>Marymoor Park</strong> &nbsp;Soccer Fields, Redmond, WA</span>
+                            </div>
+                            <div class="camp-detail">
+                                <div class="icon-wrap">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <span><strong>Ages 7-15</strong> &nbsp;All skill levels welcome</span>
+                            </div>
+                        </div>
+                        
+                        <div class="camp-pricing">
+                            <h3>Camp Fee</h3>
+                            <div class="camp-price">$339 <span>/ full session</span></div>
+                        </div>
+                        
+                        <div class="camp-includes">
+                            <h4>What's Included</h4>
+                            <ul>
+                                <li><i class="fas fa-check"></i> 7 weeks of professional coaching</li>
+                                <li><i class="fas fa-check"></i> Ball handling and control drills</li>
+                                <li><i class="fas fa-check"></i> Fundamental soccer skills development</li>
+                                <li><i class="fas fa-check"></i> Small-sided games & scrimmages</li>
+                                <li><i class="fas fa-check"></i> Character development in an Islamic environment</li>
+                            </ul>
+                        </div>
+                        
+                        <a href="#" class="camp-cta disabled">
+                            <i class="fas fa-lock"></i>
+                            Registration Now Closed
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Spring Camp - TBD -->
+                <div class="camp-card">
+                    <div class="camp-header">
+                        <div class="camp-icon">🌸</div>
+                        <h2>Spring Camp</h2>
+                        <div class="camp-dates">
+                            <i class="fas fa-calendar-alt"></i>
+                            Dates TBD
+                        </div>
+                    </div>
+                    <div class="camp-body">
+                        <div class="tbd-message">
+                            <div class="tbd-icon">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <h3>Coming Soon!</h3>
+                            <p>Spring camp dates and registration details will be announced soon. Follow us on Instagram to be the first to know!</p>
+                            <a href="https://www.instagram.com/suhbah_soccer" target="_blank" rel="noopener" class="instagram-follow">
+                                <i class="fab fa-instagram"></i>
+                                Follow @suhbah_soccer
+                            </a>
+                        </div>
+                        
+                        <div class="camp-includes">
+                            <h4>What to Expect</h4>
+                            <ul>
+                                <li><i class="fas fa-check"></i> Multi-week professional coaching sessions</li>
+                                <li><i class="fas fa-check"></i> Advanced skill development drills</li>
+                                <li><i class="fas fa-check"></i> Game strategy and tactical training</li>
+                                <li><i class="fas fa-check"></i> Scrimmages and friendly competitions</li>
+                                <li><i class="fas fa-check"></i> Islamic character building activities</li>
+                            </ul>
+                        </div>
+                        
+                        <a href="#" class="camp-cta disabled">
+                            <i class="fas fa-bell"></i>
+                            Coming Soon
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <a href="index.html#programs" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to Programs
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="Logos/Crest No Banner.png" alt="Suhbah Soccer by MJ2" class="footer-logo-image" loading="lazy" decoding="async">
+                    </div>
+                    <p>Developing champions on and off the field through excellence in soccer training and character development. Proudly operated by MJ2.</p>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/suhbah_soccer" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html#home">Home</a></li>
+                        <li><a href="index.html#about">About</a></li>
+                        <li><a href="index.html#coaches">Coaches</a></li>
+                        <li><a href="index.html#programs">Programs</a></li>
+                        <li><a href="index.html#reviews">Reviews</a></li>
+                        <li><a href="index.html#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Programs</h4>
+                    <ul>
+                        <li><a href="camps.html">Soccer Camps</a></li>
+                        <li><a href="index.html#services">Training Packages</a></li>
+                        <li><a href="index.html#services">Private Sessions</a></li>
+                        <li><a href="index.html#services">Group Training</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> (360) 556-7407</li>
+                        <li><i class="fas fa-envelope"></i> suhbahsoccer@gmail.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Marymoor Park, Redmond, WA</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Suhbah Soccer Camp by MJ2. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('#primary-navigation');
+        const navOverlay = document.querySelector('.nav-overlay');
+
+        function toggleNav(forceOpen = null) {
+            const shouldOpen = forceOpen !== null ? forceOpen : !navMenu.classList.contains('active');
+            navMenu.classList.toggle('active', shouldOpen);
+            hamburger.classList.toggle('active', shouldOpen);
+            navOverlay.classList.toggle('show', shouldOpen);
+            hamburger.setAttribute('aria-expanded', String(shouldOpen));
+            document.body.style.overflow = shouldOpen ? 'hidden' : 'auto';
+        }
+
+        hamburger.addEventListener('click', () => toggleNav());
+        hamburger.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleNav();
+            }
+        });
+        navOverlay.addEventListener('click', () => toggleNav(false));
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => toggleNav(false));
+        });
+    </script>
+</body>
+</html>
