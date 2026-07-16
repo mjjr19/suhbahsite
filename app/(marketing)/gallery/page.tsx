@@ -23,7 +23,7 @@ export default async function GalleryPage() {
           title="Gallery"
           description="Photos and highlights from our camps and training sessions."
         />
-        <div className="mt-12">
+        <div className="mt-14">
           {items.length > 0 ? (
             <GalleryGrid items={items} />
           ) : (

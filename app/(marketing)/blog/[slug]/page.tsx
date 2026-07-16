@@ -7,6 +7,7 @@ import { client } from "@/lib/sanity/client";
 import { urlFor } from "@/lib/sanity/image";
 import { allBlogSlugsQuery, blogPostBySlugQuery } from "@/lib/sanity/queries";
 import type { BlogPost } from "@/types";
+import { Reveal } from "@/components/motion/Reveal";
 
 export const revalidate = 60;
 
@@ -41,14 +42,16 @@ export default async function BlogPostPage({
   return (
     <article className="py-16 sm:py-20">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <p className="text-sm text-muted-foreground">
-          {format(new Date(post.publishedAt), "MMMM d, yyyy")}
-        </p>
-        <h1 className="mt-2 font-display text-3xl text-foreground sm:text-4xl">
-          {post.title}
-        </h1>
+        <Reveal>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {format(new Date(post.publishedAt), "MMMM d, yyyy")}
+          </p>
+          <h1 className="mt-2 font-display text-4xl leading-[1.05] tracking-tight text-foreground sm:text-5xl">
+            {post.title}
+          </h1>
+        </Reveal>
         {post.coverImage && (
-          <div className="relative mt-8 aspect-video w-full overflow-hidden rounded-2xl border border-border">
+          <Reveal delay={0.1} className="relative mt-8 aspect-video w-full overflow-hidden rounded-2xl border border-border shadow-lg">
             <Image
               src={urlFor(post.coverImage).width(1200).height(700).url()}
               alt={post.title}
@@ -56,12 +59,12 @@ export default async function BlogPostPage({
               className="object-cover"
               priority
             />
-          </div>
+          </Reveal>
         )}
         {post.body && (
-          <div className="prose prose-sm mt-10 max-w-none text-foreground prose-headings:font-display">
+          <Reveal delay={0.15} className="prose prose-sm mt-10 max-w-none text-foreground prose-headings:font-display">
             <PortableText value={post.body} />
-          </div>
+          </Reveal>
         )}
       </div>
     </article>

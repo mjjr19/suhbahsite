@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/sections/SectionHeader";
 import { ProgramCard } from "@/components/sections/ProgramCard";
 import { CoachCard } from "@/components/sections/CoachCard";
 import { TestimonialCarousel } from "@/components/sections/TestimonialCarousel";
+import { Reveal } from "@/components/motion/Reveal";
 import { client } from "@/lib/sanity/client";
 import {
   activeProgramsQuery,
@@ -15,6 +16,24 @@ import {
 import type { Coach, Program, Testimonial } from "@/types";
 
 export const revalidate = 60;
+
+const features = [
+  {
+    icon: ShieldCheck,
+    title: "Elite Training",
+    description: "Ball mastery, speed, and tactical awareness",
+  },
+  {
+    icon: HandHeart,
+    title: "Islamic Mentorship",
+    description: "Spiritual talks and character-building",
+  },
+  {
+    icon: Users,
+    title: "Brotherhood",
+    description: "Fun, focused community environment",
+  },
+];
 
 export default async function HomePage() {
   const [programs, coaches, testimonials] = await Promise.all([
@@ -47,34 +66,20 @@ export default async function HomePage() {
             title="Building Athletes & Character"
             description="Suhbah Soccer is where football meets faith, ballers become brothers, and character is crafted. Our elite coaches provide high-level soccer training focused on ball mastery, speed, athleticism, and tactical awareness."
           />
-          <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <ShieldCheck className="h-7 w-7" />
-              </div>
-              <h3 className="mt-4 font-display text-lg">Elite Training</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Ball mastery, speed, and tactical awareness
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <HandHeart className="h-7 w-7" />
-              </div>
-              <h3 className="mt-4 font-display text-lg">Islamic Mentorship</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Spiritual talks and character-building
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Users className="h-7 w-7" />
-              </div>
-              <h3 className="mt-4 font-display text-lg">Brotherhood</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Fun, focused community environment
-              </p>
-            </div>
+          <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-3">
+            {features.map((feature, index) => (
+              <Reveal key={feature.title} delay={index * 0.1} className="text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <feature.icon className="h-8 w-8" />
+                </div>
+                <h3 className="mt-5 font-display text-xl tracking-tight">
+                  {feature.title}
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {feature.description}
+                </p>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -87,13 +92,13 @@ export default async function HomePage() {
             description="Elite players turned mentors, dedicated to developing the next generation."
           />
           {coaches.length > 0 ? (
-            <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {coaches.slice(0, 3).map((coach) => (
-                <CoachCard key={coach._id} coach={coach} />
+            <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {coaches.slice(0, 3).map((coach, index) => (
+                <CoachCard key={coach._id} coach={coach} index={index} />
               ))}
             </div>
           ) : (
-            <p className="mt-12 text-center text-muted-foreground">
+            <p className="mt-14 text-center text-muted-foreground">
               Coach profiles will appear here once added in Sanity Studio.
             </p>
           )}
@@ -115,13 +120,13 @@ export default async function HomePage() {
             description="Find the perfect program for your young athlete's development."
           />
           {programs.length > 0 ? (
-            <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {programs.slice(0, 3).map((program) => (
-                <ProgramCard key={program._id} program={program} />
+            <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {programs.slice(0, 3).map((program, index) => (
+                <ProgramCard key={program._id} program={program} index={index} />
               ))}
             </div>
           ) : (
-            <p className="mt-12 text-center text-muted-foreground">
+            <p className="mt-14 text-center text-muted-foreground">
               Programs will appear here once added in Sanity Studio.
             </p>
           )}
@@ -136,30 +141,36 @@ export default async function HomePage() {
       </section>
 
       {testimonials.length > 0 && (
-        <section className="bg-muted/40 py-20 sm:py-24">
+        <section className="bg-ink py-20 sm:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SectionHeader label="Testimonials" title="What Families Say" />
-            <div className="mt-12">
-              <TestimonialCarousel testimonials={testimonials} />
+            <SectionHeader label="Testimonials" title="What Families Say" tone="ink" />
+            <div className="mt-14">
+              <TestimonialCarousel testimonials={testimonials} tone="ink" />
             </div>
           </div>
         </section>
       )}
 
       <section className="py-20 sm:py-24">
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="font-display text-3xl text-foreground sm:text-4xl">
-            Ready to Register?
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            Join young athletes who have elevated their game with Suhbah
-            Soccer.
-          </p>
-          <Button asChild size="lg" className="mt-8">
-            <Link href="/programs">
-              Complete Registration <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <Reveal className="overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-[hsl(102,28%,30%)] px-8 py-16 text-center sm:px-16">
+            <h2 className="font-display text-4xl leading-[1.05] tracking-tight text-white sm:text-5xl">
+              Ready to Register?
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-white/85">
+              Join young athletes who have elevated their game with Suhbah
+              Soccer.
+            </p>
+            <Button
+              asChild
+              size="lg"
+              className="mt-8 bg-white text-primary hover:bg-white/90"
+            >
+              <Link href="/programs">
+                Complete Registration <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </Reveal>
         </div>
       </section>
     </>

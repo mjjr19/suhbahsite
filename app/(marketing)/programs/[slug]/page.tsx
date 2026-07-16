@@ -12,6 +12,7 @@ import {
 } from "@/lib/sanity/queries";
 import type { Program } from "@/types";
 import { RegisterForm } from "@/components/sections/RegisterForm";
+import { Reveal } from "@/components/motion/Reveal";
 
 export const revalidate = 60;
 
@@ -66,10 +67,16 @@ export default async function ProgramDetailPage({
     ? urlFor(program.heroImage).width(1200).height(700).url()
     : null;
 
+  const metaChips = [
+    { icon: CalendarDays, label: formatDateRange(program.startDate, program.endDate) },
+    program.location ? { icon: MapPin, label: program.location } : null,
+    program.ageGroup ? { icon: Users, label: `Ages ${program.ageGroup}` } : null,
+  ].filter(Boolean) as { icon: typeof CalendarDays; label: string }[];
+
   return (
     <section className="py-16 sm:py-20">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-muted">
+        <Reveal className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-muted shadow-lg">
           {imageUrl && (
             <Image
               src={imageUrl}
@@ -79,11 +86,11 @@ export default async function ProgramDetailPage({
               priority
             />
           )}
-        </div>
+        </Reveal>
 
-        <div className="mt-8 grid grid-cols-1 gap-12 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <h1 className="font-display text-3xl text-foreground sm:text-4xl">
+        <div className="mt-10 grid grid-cols-1 gap-12 lg:grid-cols-3">
+          <Reveal delay={0.1} className="lg:col-span-2">
+            <h1 className="font-display text-4xl leading-[1.05] tracking-tight text-foreground sm:text-5xl">
               {program.title}
             </h1>
             {program.summary && (
@@ -92,23 +99,16 @@ export default async function ProgramDetailPage({
               </p>
             )}
 
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="flex items-center gap-2 text-sm text-foreground">
-                <CalendarDays className="h-4 w-4 text-primary" />
-                {formatDateRange(program.startDate, program.endDate)}
-              </div>
-              {program.location && (
-                <div className="flex items-center gap-2 text-sm text-foreground">
-                  <MapPin className="h-4 w-4 text-primary" />
-                  {program.location}
+            <div className="mt-6 flex flex-wrap gap-3">
+              {metaChips.map((chip) => (
+                <div
+                  key={chip.label}
+                  className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground"
+                >
+                  <chip.icon className="h-4 w-4 text-primary" />
+                  {chip.label}
                 </div>
-              )}
-              {program.ageGroup && (
-                <div className="flex items-center gap-2 text-sm text-foreground">
-                  <Users className="h-4 w-4 text-primary" />
-                  Ages {program.ageGroup}
-                </div>
-              )}
+              ))}
             </div>
 
             {program.body && program.body.length > 0 && (
@@ -116,22 +116,25 @@ export default async function ProgramDetailPage({
                 <PortableText value={program.body} />
               </div>
             )}
-          </div>
+          </Reveal>
 
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 rounded-xl border border-border bg-card p-6">
-              <div className="font-display text-3xl text-primary">
-                {formatPrice(program.price)}
+          <Reveal delay={0.2} className="lg:col-span-1">
+            <div className="sticky top-24 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+              <div className="h-1.5 bg-gradient-to-r from-primary to-accent" />
+              <div className="p-6">
+                <div className="font-display text-4xl tracking-tight text-primary">
+                  {formatPrice(program.price)}
+                </div>
+                {!program.active ? (
+                  <p className="mt-4 rounded-md bg-muted px-4 py-3 text-sm text-muted-foreground">
+                    Registration for this program is currently closed.
+                  </p>
+                ) : (
+                  <RegisterForm program={program} />
+                )}
               </div>
-              {!program.active ? (
-                <p className="mt-4 rounded-md bg-muted px-4 py-3 text-sm text-muted-foreground">
-                  Registration for this program is currently closed.
-                </p>
-              ) : (
-                <RegisterForm program={program} />
-              )}
             </div>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>
