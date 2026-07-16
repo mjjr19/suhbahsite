@@ -12,3 +12,20 @@ node_modules/
 dist/
 build/
 
+# Next.js
+.next/
+out/
+
+# Env files
+.env
+.env*.local
+
+# Large raw video files - upload to YouTube/Vimeo and embed instead of committing
+local-media/
+
+# Sanity
+sanity/.sanity/
+
+# TypeScript
+*.tsbuildinfo
+
