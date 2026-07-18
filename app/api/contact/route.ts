@@ -25,13 +25,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: NOTIFICATIONS_EMAIL,
     replyTo: email,
     subject: `New contact form message from ${name}`,
     text: `From: ${name} <${email}>\n\n${message}`,
   });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 502 });
+  }
 
   return NextResponse.json({ success: true });
 }

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         { style: "currency", currency: "USD" },
       );
 
-      await resend.emails.send({
+      const { error: emailError } = await resend.emails.send({
         from: FROM_EMAIL,
         to: metadata.parentEmail,
         subject: "You're registered with Suhbah Soccer!",
@@ -84,6 +84,12 @@ export async function POST(request: NextRequest) {
           amountFormatted,
         }),
       });
+
+      if (emailError) {
+        // Don't fail the webhook over email delivery — the registration is
+        // already saved. Log so it's visible without blocking Stripe's retry.
+        console.error("Failed to send registration confirmation email:", emailError);
+      }
     }
   }
 
