@@ -47,8 +47,47 @@ export const program = defineType({
       name: "price",
       title: "Price (in cents)",
       type: "number",
-      description: "e.g. 33900 for $339.00",
+      description:
+        'e.g. 33900 for $339.00. For tiered programs, set this to match the lowest tier\'s price (used as the "starting at" price on cards).',
       validation: (rule) => rule.required().min(0),
+    }),
+    defineField({
+      name: "pricingTiers",
+      title: "Pricing tiers",
+      type: "array",
+      description:
+        "Optional. If set, parents choose one tier on the registration form instead of paying the flat price above.",
+      of: [
+        {
+          type: "object",
+          name: "pricingTier",
+          fields: [
+            defineField({
+              name: "label",
+              title: "Label",
+              type: "string",
+              description: 'e.g. "Full Quarter (11 sessions)"',
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: "price",
+              title: "Price (in cents)",
+              type: "number",
+              description: "e.g. 92900 for $929.00",
+              validation: (rule) => rule.required().min(0),
+            }),
+            defineField({
+              name: "description",
+              title: "Description",
+              type: "string",
+              description: "Optional short note, e.g. session count or schedule detail.",
+            }),
+          ],
+          preview: {
+            select: { title: "label", subtitle: "price" },
+          },
+        },
+      ],
     }),
     defineField({
       name: "capacity",

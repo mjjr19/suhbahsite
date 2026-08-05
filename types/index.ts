@@ -1,5 +1,11 @@
 import type { Image, PortableTextBlock } from "sanity";
 
+export interface ProgramPricingTier {
+  label: string;
+  price: number;
+  description?: string;
+}
+
 export interface Program {
   _id: string;
   title: string;
@@ -9,6 +15,7 @@ export interface Program {
   startDate?: string;
   endDate?: string;
   price: number;
+  pricingTiers?: ProgramPricingTier[];
   capacity?: number;
   ageGroup?: string;
   location?: string;

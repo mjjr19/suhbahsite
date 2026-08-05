@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
         parent_name: metadata.parentName || null,
         parent_email: metadata.parentEmail,
         parent_phone: metadata.parentPhone || null,
-        package_selected: metadata.programTitle || metadata.programSlug,
+        package_selected: metadata.packageLabel || metadata.programTitle || metadata.programSlug,
         payment_method: "stripe",
         payment_status: "paid",
         amount_paid_cents: session.amount_total ?? 0,

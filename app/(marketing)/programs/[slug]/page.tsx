@@ -13,16 +13,9 @@ import {
 import type { Program } from "@/types";
 import { RegisterForm } from "@/components/sections/RegisterForm";
 import { Reveal } from "@/components/motion/Reveal";
+import { formatPrice } from "@/lib/utils";
 
 export const revalidate = 60;
-
-function formatPrice(cents: number) {
-  return (cents / 100).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
-  });
-}
 
 function formatDateRange(startDate?: string, endDate?: string) {
   if (!startDate) return "Dates TBD";
@@ -123,6 +116,7 @@ export default async function ProgramDetailPage({
               <div className="h-1.5 bg-gradient-to-r from-primary to-accent" />
               <div className="p-6">
                 <div className="font-display text-4xl tracking-tight text-primary">
+                  {program.pricingTiers?.length ? "Starting at " : ""}
                   {formatPrice(program.price)}
                 </div>
                 {!program.active ? (

@@ -14,6 +14,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { formatPrice } from "@/lib/utils";
 import type { Program } from "@/types";
 
 const registrationSchema = z.object({
@@ -22,6 +30,7 @@ const registrationSchema = z.object({
   parentName: z.string().min(2, "Enter your full name"),
   parentEmail: z.string().email("Enter a valid email"),
   parentPhone: z.string().min(7, "Enter a valid phone number"),
+  packageLabel: z.string().optional(),
 });
 
 type RegistrationValues = z.infer<typeof registrationSchema>;
@@ -29,6 +38,7 @@ type RegistrationValues = z.infer<typeof registrationSchema>;
 export function RegisterForm({ program }: { program: Program }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const tiers = program.pricingTiers ?? [];
 
   const form = useForm<RegistrationValues>({
     resolver: zodResolver(registrationSchema),
@@ -38,8 +48,13 @@ export function RegisterForm({ program }: { program: Program }) {
       parentName: "",
       parentEmail: "",
       parentPhone: "",
+      packageLabel: tiers[0]?.label,
     },
   });
+
+  const selectedLabel = form.watch("packageLabel");
+  const selectedTier = tiers.find((t) => t.label === selectedLabel) ?? tiers[0];
+  const totalPrice = tiers.length > 0 ? selectedTier?.price ?? program.price : program.price;
 
   async function onSubmit(values: RegistrationValues) {
     setSubmitting(true);
@@ -129,6 +144,40 @@ export function RegisterForm({ program }: { program: Program }) {
             </FormItem>
           )}
         />
+
+        {tiers.length > 0 && (
+          <FormField
+            control={form.control}
+            name="packageLabel"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Select a package</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a package" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {tiers.map((tier) => (
+                      <SelectItem key={tier.label} value={tier.label}>
+                        {tier.label} — {formatPrice(tier.price)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {tiers.length > 0 && (
+          <div className="flex items-center justify-between rounded-md bg-muted px-4 py-3 text-sm font-semibold text-foreground">
+            <span>Total</span>
+            <span>{formatPrice(totalPrice)}</span>
+          </div>
+        )}
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 

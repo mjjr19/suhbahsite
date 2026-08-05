@@ -12,6 +12,7 @@ const checkoutSchema = z.object({
   parentEmail: z.string().email(),
   parentPhone: z.string().min(7),
   programSlug: z.string().min(1),
+  packageLabel: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { playerName, playerDob, parentName, parentEmail, parentPhone, programSlug } =
+  const { playerName, playerDob, parentName, parentEmail, parentPhone, programSlug, packageLabel } =
     parsed.data;
 
   const program = await client.fetch<Program | null>(programBySlugQuery, {
@@ -39,6 +40,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let unitAmount = program.price;
+  if (program.pricingTiers && program.pricingTiers.length > 0) {
+    const tier = program.pricingTiers.find((t) => t.label === packageLabel);
+    if (!tier) {
+      return NextResponse.json(
+        { error: "Please select a valid package." },
+        { status: 400 },
+      );
+    }
+    unitAmount = tier.price;
+  }
+
   const origin = request.headers.get("origin") ?? request.nextUrl.origin;
 
   const session = await stripe.checkout.sessions.create({
@@ -49,7 +62,7 @@ export async function POST(request: NextRequest) {
         quantity: 1,
         price_data: {
           currency: "usd",
-          unit_amount: program.price,
+          unit_amount: unitAmount,
           product_data: {
             name: program.title,
             description: program.summary,
@@ -65,6 +78,9 @@ export async function POST(request: NextRequest) {
       parentName,
       parentEmail,
       parentPhone,
+      ...(program.pricingTiers && program.pricingTiers.length > 0
+        ? { packageLabel: packageLabel! }
+        : {}),
     },
     success_url: `${origin}/programs/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/programs/${programSlug}`,

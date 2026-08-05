@@ -5,15 +5,8 @@ import { ArrowRight, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/motion/Reveal";
 import { urlFor } from "@/lib/sanity/image";
+import { formatPrice } from "@/lib/utils";
 import type { Program } from "@/types";
-
-function formatPrice(cents: number) {
-  return (cents / 100).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
-  });
-}
 
 function formatDateRange(startDate?: string, endDate?: string) {
   if (!startDate) return "Dates TBD";
@@ -90,6 +83,7 @@ export function ProgramCard({
           )}
           <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
             <span className="font-display text-2xl text-primary">
+              {program.pricingTiers?.length ? "Starting at " : ""}
               {formatPrice(program.price)}
             </span>
             <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
