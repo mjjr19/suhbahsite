@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe/client";
-import { createServiceRoleClient, getOrCreateParentUser } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/server";
 import { resend, FROM_EMAIL } from "@/lib/email/resend";
 import { RegistrationConfirmationEmail } from "@/lib/email/templates/registration-confirmation";
+
+const MS_PER_YEAR = 1000 * 60 * 60 * 24 * 365.25;
+
+function calculateAgeYears(dob: string): string {
+  const ageMs = Date.now() - new Date(dob).getTime();
+  return (ageMs / MS_PER_YEAR).toFixed(2);
+}
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -34,37 +41,42 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createServiceRoleClient();
-    const parentUserId = await getOrCreateParentUser(metadata.parentEmail);
 
-    const { data: player, error: playerError } = await supabase
-      .from("players")
+    const { data: registration, error: registrationError } = await supabase
+      .from("registrations")
       .insert({
-        parent_user_id: parentUserId,
-        full_name: metadata.playerName,
-        date_of_birth: metadata.playerDob || null,
+        program_slug: metadata.programSlug,
+        registered_at: new Date().toISOString(),
+        child_name: metadata.playerName,
+        child_age: metadata.playerDob ? calculateAgeYears(metadata.playerDob) : null,
+        parent_name: metadata.parentName || null,
+        parent_email: metadata.parentEmail,
+        parent_phone: metadata.parentPhone || null,
+        package_selected: metadata.programTitle || metadata.programSlug,
+        payment_method: "stripe",
+        payment_status: "paid",
+        amount_paid_cents: session.amount_total ?? 0,
       })
       .select()
       .single();
-
-    if (playerError) {
-      return NextResponse.json({ error: playerError.message }, { status: 500 });
-    }
-
-    const { error: registrationError } = await supabase
-      .from("registrations")
-      .insert({
-        player_id: player.id,
-        program_slug: metadata.programSlug,
-        stripe_session_id: session.id,
-        stripe_payment_status: "paid",
-        amount_cents: session.amount_total,
-      });
 
     if (registrationError) {
       return NextResponse.json(
         { error: registrationError.message },
         { status: 500 },
       );
+    }
+
+    const { error: paymentError } = await supabase.from("payments").insert({
+      registration_id: registration.id,
+      amount_cents: session.amount_total ?? 0,
+      method: "stripe",
+      paid_at: new Date().toISOString().slice(0, 10),
+      notes: `Stripe Checkout session ${session.id}`,
+    });
+
+    if (paymentError) {
+      return NextResponse.json({ error: paymentError.message }, { status: 500 });
     }
 
     if (process.env.RESEND_API_KEY) {
