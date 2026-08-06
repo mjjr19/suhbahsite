@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
         child_name: metadata.playerName,
         child_age: metadata.playerDob ? calculateAgeYears(metadata.playerDob) : null,
         parent_name: metadata.parentName || null,
-        parent_email: metadata.parentEmail,
+        parent_email: metadata.parentEmail.toLowerCase(),
         parent_phone: metadata.parentPhone || null,
         package_selected: metadata.packageLabel || metadata.programTitle || metadata.programSlug,
         payment_method: "stripe",

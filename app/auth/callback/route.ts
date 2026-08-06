@@ -24,6 +24,17 @@ export async function GET(request: NextRequest) {
         })
         .eq("email", data.user.email.toLowerCase())
         .is("auth_user_id", null);
+
+      // First login for a parent: link any guest-checkout registrations made
+      // with this email to this auth user, so RLS can scope the portal
+      // dashboard to them. Case-insensitive match because parent_email on
+      // older rows isn't normalized (new rows are lowercased at insert time
+      // in the Stripe webhook). No-op once already backfilled.
+      await adminClient
+        .from("registrations")
+        .update({ auth_user_id: data.user.id })
+        .ilike("parent_email", data.user.email)
+        .is("auth_user_id", null);
     }
   }
 
