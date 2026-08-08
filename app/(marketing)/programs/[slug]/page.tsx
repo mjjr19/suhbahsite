@@ -19,9 +19,9 @@ export const revalidate = 60;
 
 function formatDateRange(startDate?: string, endDate?: string) {
   if (!startDate) return "Dates TBD";
-  const start = format(new Date(startDate), "MMMM d, yyyy");
+  const start = format(new Date(`${startDate}T00:00:00`), "MMMM d, yyyy");
   if (!endDate) return start;
-  const end = format(new Date(endDate), "MMMM d, yyyy");
+  const end = format(new Date(`${endDate}T00:00:00`), "MMMM d, yyyy");
   return `${start} – ${end}`;
 }
 

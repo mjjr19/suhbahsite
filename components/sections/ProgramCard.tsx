@@ -10,9 +10,9 @@ import type { Program } from "@/types";
 
 function formatDateRange(startDate?: string, endDate?: string) {
   if (!startDate) return "Dates TBD";
-  const start = format(new Date(startDate), "MMM d");
+  const start = format(new Date(`${startDate}T00:00:00`), "MMM d");
   if (!endDate) return start;
-  const end = format(new Date(endDate), "MMM d, yyyy");
+  const end = format(new Date(`${endDate}T00:00:00`), "MMM d, yyyy");
   return `${start} – ${end}`;
 }
 
