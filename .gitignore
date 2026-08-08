@@ -29,3 +29,6 @@ sanity/.sanity/
 # TypeScript
 *.tsbuildinfo
 
+
+# Local Netlify folder
+.netlify
