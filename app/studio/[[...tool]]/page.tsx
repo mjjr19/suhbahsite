@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { StudioClient } from "./StudioClient";
+import nextDynamic from "next/dynamic";
+
+const StudioClient = nextDynamic(
+  () => import("./StudioClient").then((mod) => mod.StudioClient),
+  { ssr: false },
+);
 
 export const dynamic = "force-dynamic";
 
