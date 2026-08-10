@@ -61,6 +61,13 @@ export const program = defineType({
         {
           type: "object",
           name: "pricingTier",
+          validation: (rule) =>
+            rule.custom((tier: { sessionsIncluded?: number; weekdayFilter?: string } | undefined) => {
+              if (tier?.sessionsIncluded != null && tier?.weekdayFilter) {
+                return "Sessions included and Restrict to weekday can't both be set on the same tier — this combination isn't supported yet.";
+              }
+              return true;
+            }),
           fields: [
             defineField({
               name: "label",
@@ -89,6 +96,24 @@ export const program = defineType({
               description:
                 "Number of individual sessions this tier covers, e.g. 5 for Half Quarter. Leave blank for full-season coverage — parents won't be asked to pick specific dates.",
               validation: (rule) => rule.min(1),
+            }),
+            defineField({
+              name: "weekdayFilter",
+              title: "Restrict to weekday",
+              type: "string",
+              description:
+                'Optional. If set, this tier automatically covers every session on that weekday only (e.g. "Full Quarter (Saturdays)") — no date picking required. Leave blank for tiers covering all days, or use Sessions included instead for a parent-picked subset. Can\'t be combined with Sessions included.',
+              options: {
+                list: [
+                  { title: "Sunday", value: "sunday" },
+                  { title: "Monday", value: "monday" },
+                  { title: "Tuesday", value: "tuesday" },
+                  { title: "Wednesday", value: "wednesday" },
+                  { title: "Thursday", value: "thursday" },
+                  { title: "Friday", value: "friday" },
+                  { title: "Saturday", value: "saturday" },
+                ],
+              },
             }),
           ],
           preview: {

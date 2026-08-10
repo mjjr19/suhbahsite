@@ -2,15 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe/client";
 import { createServiceRoleClient } from "@/lib/supabase/server";
+import { client } from "@/lib/sanity/client";
+import { programBySlugQuery } from "@/lib/sanity/queries";
 import { resend, FROM_EMAIL } from "@/lib/email/resend";
 import { RegistrationConfirmationEmail } from "@/lib/email/templates/registration-confirmation";
-
-const MS_PER_YEAR = 1000 * 60 * 60 * 24 * 365.25;
-
-function calculateAgeYears(dob: string): string {
-  const ageMs = Date.now() - new Date(dob).getTime();
-  return (ageMs / MS_PER_YEAR).toFixed(2);
-}
+import type { Program } from "@/types";
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -34,106 +30,62 @@ export async function POST(request: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const metadata = session.metadata;
+    const pendingCheckoutId = session.metadata?.pendingCheckoutId;
 
-    if (!metadata?.parentEmail || !metadata?.playerName || !metadata?.programSlug) {
+    if (!pendingCheckoutId) {
       return NextResponse.json({ error: "Missing metadata" }, { status: 400 });
     }
 
     const supabase = createServiceRoleClient();
 
-    const { data: registration, error: registrationError } = await supabase
-      .from("registrations")
-      .insert({
-        program_slug: metadata.programSlug,
-        registered_at: new Date().toISOString(),
-        child_name: metadata.playerName,
-        child_age: metadata.playerDob ? calculateAgeYears(metadata.playerDob) : null,
-        parent_name: metadata.parentName || null,
-        parent_email: metadata.parentEmail.toLowerCase(),
-        parent_phone: metadata.parentPhone || null,
-        package_selected: metadata.packageLabel || metadata.programTitle || metadata.programSlug,
-        payment_method: "stripe",
-        payment_status: "paid",
-        amount_paid_cents: session.amount_total ?? 0,
-      })
-      .select()
-      .single();
+    const { data: pendingCheckout } = await supabase
+      .from("pending_checkouts")
+      .select("*")
+      .eq("id", pendingCheckoutId)
+      .maybeSingle();
 
-    if (registrationError) {
-      return NextResponse.json(
-        { error: registrationError.message },
-        { status: 500 },
-      );
+    if (!pendingCheckout) {
+      // Nothing to do — unknown id, or already cleaned up. Ack so Stripe
+      // stops retrying.
+      return NextResponse.json({ received: true });
     }
 
-    const { error: paymentError } = await supabase.from("payments").insert({
-      registration_id: registration.id,
-      amount_cents: session.amount_total ?? 0,
-      method: "stripe",
-      paid_at: new Date().toISOString().slice(0, 10),
-      notes: `Stripe Checkout session ${session.id}`,
-    });
+    const { data: rpcResult, error: rpcError } = await supabase.rpc(
+      "consume_pending_checkout",
+      { p_id: pendingCheckoutId },
+    );
 
-    if (paymentError) {
-      return NextResponse.json({ error: paymentError.message }, { status: 500 });
+    if (rpcError) {
+      return NextResponse.json({ error: rpcError.message }, { status: 500 });
     }
 
-    // Assign this registration to the sessions its tier covers. Partial
-    // tiers pass the parent's chosen dates through metadata; anything else
-    // (no tiers, or a tier with no sessionsIncluded limit) is treated as
-    // full coverage — every session that currently exists for this program.
-    // Known limitation: sessions added after this point won't retroactively
-    // include already-registered full-coverage registrants.
-    let sessionIds: string[];
-    if (metadata.selectedSessionIds) {
-      sessionIds = metadata.selectedSessionIds.split(",").filter(Boolean);
-    } else {
-      const { data: programSessions } = await supabase
-        .from("sessions")
-        .select("id")
-        .eq("program_slug", metadata.programSlug)
-        .eq("status", "scheduled");
-      sessionIds = (programSessions ?? []).map((s) => s.id);
-    }
+    const result = rpcResult?.[0];
 
-    if (sessionIds.length > 0) {
-      const { error: sessionAssignError } = await supabase
-        .from("session_registrations")
-        .insert(
-          sessionIds.map((sessionId) => ({
-            session_id: sessionId,
-            registration_id: registration.id,
-          })),
-        );
+    if (result?.claimed && process.env.RESEND_API_KEY) {
+      const program = await client.fetch<Program | null>(programBySlugQuery, {
+        slug: pendingCheckout.program_slug,
+      });
 
-      if (sessionAssignError) {
-        // Don't fail the webhook over this — registration + payment already
-        // succeeded. Log so it's visible without blocking Stripe's retry.
-        console.error("Failed to assign session_registrations:", sessionAssignError);
-      }
-    }
-
-    if (process.env.RESEND_API_KEY) {
-      const amountFormatted = ((session.amount_total ?? 0) / 100).toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" },
-      );
+      const children = pendingCheckout.children as { playerName: string }[];
+      const amountFormatted = (pendingCheckout.total_cents / 100).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
 
       const { error: emailError } = await resend.emails.send({
         from: FROM_EMAIL,
-        to: metadata.parentEmail,
+        to: pendingCheckout.parent_email,
         subject: "You're registered with Suhbah Soccer!",
         react: RegistrationConfirmationEmail({
-          parentName: metadata.parentName || "there",
-          playerName: metadata.playerName,
-          programTitle: metadata.programTitle || metadata.programSlug,
+          parentName: pendingCheckout.parent_name || "there",
+          players: children.map((c) => c.playerName),
+          programTitle: program?.title || pendingCheckout.program_slug,
           amountFormatted,
         }),
       });
 
       if (emailError) {
-        // Don't fail the webhook over email delivery — the registration is
+        // Don't fail the webhook over email delivery — registrations are
         // already saved. Log so it's visible without blocking Stripe's retry.
         console.error("Failed to send registration confirmation email:", emailError);
       }

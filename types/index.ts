@@ -1,10 +1,20 @@
 import type { Image, PortableTextBlock } from "sanity";
 
+export type Weekday =
+  | "sunday"
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday";
+
 export interface ProgramPricingTier {
   label: string;
   price: number;
   description?: string;
   sessionsIncluded?: number;
+  weekdayFilter?: Weekday;
 }
 
 export interface ProgramSession {

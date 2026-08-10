@@ -1,16 +1,21 @@
 interface RegistrationConfirmationEmailProps {
   parentName: string;
-  playerName: string;
+  players: string[];
   programTitle: string;
   amountFormatted: string;
 }
 
 export function RegistrationConfirmationEmail({
   parentName,
-  playerName,
+  players,
   programTitle,
   amountFormatted,
 }: RegistrationConfirmationEmailProps) {
+  const playersFormatted =
+    players.length > 1
+      ? `${players.slice(0, -1).join(", ")} and ${players[players.length - 1]}`
+      : players[0];
+
   return (
     <div
       style={{
@@ -24,7 +29,7 @@ export function RegistrationConfirmationEmail({
         You&rsquo;re registered, {parentName}!
       </h1>
       <p style={{ fontSize: 15, lineHeight: 1.6 }}>
-        Thank you for registering <strong>{playerName}</strong> for{" "}
+        Thank you for registering <strong>{playersFormatted}</strong> for{" "}
         <strong>{programTitle}</strong> with Suhbah Soccer.
       </p>
       <table
@@ -37,8 +42,10 @@ export function RegistrationConfirmationEmail({
       >
         <tbody>
           <tr>
-            <td style={{ padding: "8px 0", color: "#6b7280" }}>Player</td>
-            <td style={{ padding: "8px 0", textAlign: "right" }}>{playerName}</td>
+            <td style={{ padding: "8px 0", color: "#6b7280" }}>
+              {players.length > 1 ? "Players" : "Player"}
+            </td>
+            <td style={{ padding: "8px 0", textAlign: "right" }}>{playersFormatted}</td>
           </tr>
           <tr>
             <td style={{ padding: "8px 0", color: "#6b7280" }}>Program</td>
