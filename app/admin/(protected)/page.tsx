@@ -10,8 +10,7 @@ export default async function AdminDashboardPage() {
     <div>
       <h1 className="font-display text-3xl text-foreground">Dashboard</h1>
       <p className="mt-2 text-muted-foreground">
-        Signed in as {user?.email}. Registrations, payments, and schedule
-        management are coming in the next phases.
+        Signed in as {user?.email}.
       </p>
     </div>
   );

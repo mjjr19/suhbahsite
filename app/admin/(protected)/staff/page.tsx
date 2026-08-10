@@ -1,11 +1,16 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server-client";
+import { getCurrentStaff } from "@/lib/supabase/staff";
 import { StaffInviteForm } from "@/components/admin/StaffInviteForm";
 
 export default async function AdminStaffPage() {
+  const currentStaff = await getCurrentStaff();
+  if (currentStaff?.role !== "admin") redirect("/admin");
+
   const supabase = createClient();
   const { data: staff } = await supabase
     .from("staff")
-    .select("id, full_name, email, is_active, accepted_at")
+    .select("id, full_name, email, role, is_active, accepted_at")
     .order("invited_at", { ascending: true });
 
   return (
@@ -31,7 +36,9 @@ export default async function AdminStaffPage() {
                 {member.full_name}{" "}
                 <span className="text-muted-foreground">({member.email})</span>
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                {member.role}
+                {" · "}
                 {member.accepted_at ? "Accepted" : "Pending"}
               </span>
             </li>

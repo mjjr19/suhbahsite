@@ -4,6 +4,15 @@ export interface ProgramPricingTier {
   label: string;
   price: number;
   description?: string;
+  sessionsIncluded?: number;
+}
+
+export interface ProgramSession {
+  id: string;
+  sessionDate: string;
+  startTime?: string;
+  endTime?: string;
+  label: string;
 }
 
 export interface Program {

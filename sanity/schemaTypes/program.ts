@@ -82,6 +82,14 @@ export const program = defineType({
               type: "string",
               description: "Optional short note, e.g. session count or schedule detail.",
             }),
+            defineField({
+              name: "sessionsIncluded",
+              title: "Sessions included",
+              type: "number",
+              description:
+                "Number of individual sessions this tier covers, e.g. 5 for Half Quarter. Leave blank for full-season coverage — parents won't be asked to pick specific dates.",
+              validation: (rule) => rule.min(1),
+            }),
           ],
           preview: {
             select: { title: "label", subtitle: "price" },

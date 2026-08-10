@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server-client";
+import { getCurrentStaff } from "@/lib/supabase/staff";
 import { Badge } from "@/components/ui/badge";
 import { formatCents } from "@/lib/utils";
 
@@ -12,6 +14,9 @@ function statusBadgeVariant(
 }
 
 export default async function AdminRegistrationsPage() {
+  const staff = await getCurrentStaff();
+  if (staff?.role !== "admin") redirect("/admin");
+
   const supabase = createClient();
   const { data: registrations } = await supabase
     .from("registrations")

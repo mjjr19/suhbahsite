@@ -79,6 +79,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: paymentError.message }, { status: 500 });
     }
 
+    // Assign this registration to the sessions its tier covers. Partial
+    // tiers pass the parent's chosen dates through metadata; anything else
+    // (no tiers, or a tier with no sessionsIncluded limit) is treated as
+    // full coverage — every session that currently exists for this program.
+    // Known limitation: sessions added after this point won't retroactively
+    // include already-registered full-coverage registrants.
+    let sessionIds: string[];
+    if (metadata.selectedSessionIds) {
+      sessionIds = metadata.selectedSessionIds.split(",").filter(Boolean);
+    } else {
+      const { data: programSessions } = await supabase
+        .from("sessions")
+        .select("id")
+        .eq("program_slug", metadata.programSlug)
+        .eq("status", "scheduled");
+      sessionIds = (programSessions ?? []).map((s) => s.id);
+    }
+
+    if (sessionIds.length > 0) {
+      const { error: sessionAssignError } = await supabase
+        .from("session_registrations")
+        .insert(
+          sessionIds.map((sessionId) => ({
+            session_id: sessionId,
+            registration_id: registration.id,
+          })),
+        );
+
+      if (sessionAssignError) {
+        // Don't fail the webhook over this — registration + payment already
+        // succeeded. Log so it's visible without blocking Stripe's retry.
+        console.error("Failed to assign session_registrations:", sessionAssignError);
+      }
+    }
+
     if (process.env.RESEND_API_KEY) {
       const amountFormatted = ((session.amount_total ?? 0) / 100).toLocaleString(
         "en-US",

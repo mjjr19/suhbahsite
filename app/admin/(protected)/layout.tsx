@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server-client";
+import { getCurrentStaff } from "@/lib/supabase/staff";
 
 const NAV = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/registrations", label: "Registrations" },
-  { href: "/admin/staff", label: "Staff" },
+  { href: "/admin", label: "Dashboard", adminOnly: false },
+  { href: "/admin/schedule", label: "Schedule", adminOnly: false },
+  { href: "/admin/registrations", label: "Registrations", adminOnly: true },
+  { href: "/admin/staff", label: "Staff", adminOnly: true },
 ];
 
 export default async function AdminProtectedLayout({
@@ -13,28 +14,18 @@ export default async function AdminProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/admin/login");
-
-  const { data: staff } = await supabase
-    .from("staff")
-    .select("id, full_name, is_active")
-    .eq("auth_user_id", user.id)
-    .eq("is_active", true)
-    .maybeSingle();
+  const staff = await getCurrentStaff();
 
   if (!staff) redirect("/admin/login");
+
+  const nav = NAV.filter((item) => !item.adminOnly || staff.role === "admin");
 
   return (
     <div className="flex min-h-screen">
       <aside className="w-56 shrink-0 border-r border-border bg-muted/30 p-4">
         <div className="font-display text-lg text-foreground">Suhbah Admin</div>
         <nav className="mt-6 flex flex-col gap-1">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -44,7 +35,9 @@ export default async function AdminProtectedLayout({
             </Link>
           ))}
         </nav>
-        <p className="mt-8 text-xs text-muted-foreground">{staff.full_name}</p>
+        <p className="mt-8 text-xs text-muted-foreground">
+          {staff.fullName} · {staff.role}
+        </p>
       </aside>
       <main className="flex-1 p-8">{children}</main>
     </div>

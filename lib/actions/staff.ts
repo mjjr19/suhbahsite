@@ -1,38 +1,30 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server-client";
 import { createAdminClient } from "@/lib/supabase/admin-client";
+import { getCurrentStaff } from "@/lib/supabase/staff";
 
 interface InviteStaffInput {
   fullName: string;
   email: string;
+  role: "admin" | "coach";
 }
 
-export async function inviteStaff({ fullName, email }: InviteStaffInput) {
+export async function inviteStaff({ fullName, email, role }: InviteStaffInput) {
   const normalizedEmail = email.trim().toLowerCase();
   const trimmedName = fullName.trim();
 
   if (!trimmedName || !normalizedEmail) {
     return { error: "Name and email are required." };
   }
-
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Not authenticated." };
+  if (role !== "admin" && role !== "coach") {
+    return { error: "Invalid role." };
   }
 
-  const { data: currentStaff } = await supabase
-    .from("staff")
-    .select("id")
-    .eq("auth_user_id", user.id)
-    .eq("is_active", true)
-    .maybeSingle();
-
+  const currentStaff = await getCurrentStaff();
   if (!currentStaff) {
+    return { error: "Not authenticated." };
+  }
+  if (currentStaff.role !== "admin") {
     return { error: "Not authorized." };
   }
 
@@ -43,6 +35,7 @@ export async function inviteStaff({ fullName, email }: InviteStaffInput) {
     .insert({
       full_name: trimmedName,
       email: normalizedEmail,
+      role,
       invited_by: currentStaff.id,
     })
     .select()

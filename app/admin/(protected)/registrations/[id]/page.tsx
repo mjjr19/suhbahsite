@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server-client";
+import { getCurrentStaff } from "@/lib/supabase/staff";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PaymentStatusSelect } from "@/components/admin/PaymentStatusSelect";
@@ -11,6 +12,9 @@ export default async function AdminRegistrationDetailPage({
 }: {
   params: { id: string };
 }) {
+  const staff = await getCurrentStaff();
+  if (staff?.role !== "admin") redirect("/admin");
+
   const supabase = createClient();
   const { data: registration } = await supabase
     .from("registrations")

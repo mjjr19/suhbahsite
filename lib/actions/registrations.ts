@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server-client";
+import { getCurrentStaff } from "@/lib/supabase/staff";
 
 interface RecordPaymentInput {
   registrationId: string;
@@ -29,25 +30,15 @@ export async function recordPayment({
     return { error: "Payment date is required." };
   }
 
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const currentStaff = await getCurrentStaff();
+  if (!currentStaff) {
     return { error: "Not authenticated." };
   }
-
-  const { data: currentStaff } = await supabase
-    .from("staff")
-    .select("id")
-    .eq("auth_user_id", user.id)
-    .eq("is_active", true)
-    .maybeSingle();
-
-  if (!currentStaff) {
+  if (currentStaff.role !== "admin") {
     return { error: "Not authorized." };
   }
+
+  const supabase = createClient();
 
   const { data: payment, error: insertError } = await supabase
     .from("payments")
@@ -103,25 +94,15 @@ export async function updatePaymentStatus({
     return { error: "Invalid status." };
   }
 
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const currentStaff = await getCurrentStaff();
+  if (!currentStaff) {
     return { error: "Not authenticated." };
   }
-
-  const { data: currentStaff } = await supabase
-    .from("staff")
-    .select("id")
-    .eq("auth_user_id", user.id)
-    .eq("is_active", true)
-    .maybeSingle();
-
-  if (!currentStaff) {
+  if (currentStaff.role !== "admin") {
     return { error: "Not authorized." };
   }
+
+  const supabase = createClient();
 
   const { error: updateError } = await supabase
     .from("registrations")

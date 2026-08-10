@@ -10,7 +10,8 @@ import {
   allProgramSlugsQuery,
   programBySlugQuery,
 } from "@/lib/sanity/queries";
-import type { Program } from "@/types";
+import { createClient } from "@/lib/supabase/server-client";
+import type { Program, ProgramSession } from "@/types";
 import { RegisterForm } from "@/components/sections/RegisterForm";
 import { Reveal } from "@/components/motion/Reveal";
 import { formatPrice } from "@/lib/utils";
@@ -55,6 +56,23 @@ export default async function ProgramDetailPage({
   });
 
   if (!program) notFound();
+
+  const supabase = createClient();
+  const { data: sessionRows } = await supabase
+    .from("sessions")
+    .select("id, session_date, start_time, end_time, label")
+    .eq("program_slug", params.slug)
+    .eq("status", "scheduled")
+    .gte("session_date", new Date().toISOString().slice(0, 10))
+    .order("session_date", { ascending: true });
+
+  const sessions: ProgramSession[] = (sessionRows ?? []).map((row) => ({
+    id: row.id,
+    sessionDate: row.session_date,
+    startTime: row.start_time ?? undefined,
+    endTime: row.end_time ?? undefined,
+    label: row.label,
+  }));
 
   const imageUrl = program.heroImage
     ? urlFor(program.heroImage).width(1200).height(700).url()
@@ -124,7 +142,7 @@ export default async function ProgramDetailPage({
                     Registration for this program is currently closed.
                   </p>
                 ) : (
-                  <RegisterForm program={program} />
+                  <RegisterForm program={program} sessions={sessions} />
                 )}
               </div>
             </div>
