@@ -97,7 +97,7 @@ export function RegisterForm({
   });
 
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "children" });
-  const watchedChildren = form.watch("children");
+  const watchedChildren = useWatch({ control: form.control, name: "children" });
 
   async function handleEmailBlur(email: string) {
     if (!z.string().email().safeParse(email).success) {
