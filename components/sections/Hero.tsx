@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
@@ -47,19 +48,23 @@ export function Hero({
   const [playing, setPlaying] = useState(false);
 
   return (
-    <section className="relative overflow-hidden bg-ink pb-28 pt-16 sm:pt-20 lg:pb-40 lg:pt-24 [clip-path:polygon(0_0,100%_0,100%_100%,0_calc(100%-4vw))]">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 select-none overflow-hidden opacity-[0.06]"
-      >
-        <span className="absolute -right-16 -top-24 font-display text-[32rem] leading-none text-white">
-          ⚽
-        </span>
+    <section className="relative -mt-16 overflow-hidden bg-ink pb-28 pt-32 sm:pt-36 lg:pb-40 lg:pt-40 [clip-path:polygon(0_0,100%_0,100%_100%,0_calc(100%-4vw))]">
+      <div aria-hidden className="absolute inset-0">
+        <Image
+          src="/gallery/suhbah-team.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-top [filter:grayscale(1)_contrast(1.15)_brightness(0.5)]"
+        />
+        {/* Colorizes the grayscale photo toward the brand green — a CSS
+            approximation of a duotone treatment without needing a
+            pre-processed image asset. */}
+        <div className="absolute inset-0 bg-primary/40 mix-blend-color" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/80 to-ink/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent" />
       </div>
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-full bg-gradient-to-b from-primary/25 via-transparent to-transparent"
-      />
 
       <motion.div
         variants={container}
@@ -77,7 +82,7 @@ export function Hero({
           </motion.span>
           <motion.h1
             variants={item}
-            className="mt-6 font-display text-5xl leading-[0.98] tracking-tight text-ink-foreground sm:text-6xl lg:text-7xl"
+            className="mt-6 font-display text-6xl leading-[0.92] tracking-tight text-ink-foreground sm:text-7xl lg:text-8xl"
           >
             {title}
             <br />
