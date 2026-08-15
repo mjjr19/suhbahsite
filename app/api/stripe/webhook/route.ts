@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe/client";
 import { createServiceRoleClient } from "@/lib/supabase/server";
-import { client } from "@/lib/sanity/client";
-import { programBySlugQuery } from "@/lib/sanity/queries";
-import { resend, FROM_EMAIL } from "@/lib/email/resend";
-import { RegistrationConfirmationEmail } from "@/lib/email/templates/registration-confirmation";
-import type { Program } from "@/types";
+import { sendRegistrationConfirmation } from "@/lib/email/sendRegistrationConfirmation";
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -61,34 +57,8 @@ export async function POST(request: NextRequest) {
 
     const result = rpcResult?.[0];
 
-    if (result?.claimed && process.env.RESEND_API_KEY) {
-      const program = await client.fetch<Program | null>(programBySlugQuery, {
-        slug: pendingCheckout.program_slug,
-      });
-
-      const children = pendingCheckout.children as { playerName: string }[];
-      const amountFormatted = (pendingCheckout.total_cents / 100).toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-
-      const { error: emailError } = await resend.emails.send({
-        from: FROM_EMAIL,
-        to: pendingCheckout.parent_email,
-        subject: "You're registered with Suhbah Soccer!",
-        react: RegistrationConfirmationEmail({
-          parentName: pendingCheckout.parent_name || "there",
-          players: children.map((c) => c.playerName),
-          programTitle: program?.title || pendingCheckout.program_slug,
-          amountFormatted,
-        }),
-      });
-
-      if (emailError) {
-        // Don't fail the webhook over email delivery — registrations are
-        // already saved. Log so it's visible without blocking Stripe's retry.
-        console.error("Failed to send registration confirmation email:", emailError);
-      }
+    if (result?.claimed) {
+      await sendRegistrationConfirmation(pendingCheckout);
     }
   }
 

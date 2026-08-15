@@ -40,6 +40,7 @@ const baseRegistrationSchema = z.object({
   parentName: z.string().min(2, "Enter your full name"),
   parentEmail: z.string().email("Enter a valid email"),
   parentPhone: z.string().min(7, "Enter a valid phone number"),
+  discountCode: z.string().optional(),
   children: z.array(childSchema).min(1).max(MAX_CHILDREN),
 });
 
@@ -61,6 +62,10 @@ export function RegisterForm({
   const [error, setError] = useState<string | null>(null);
   const [familyEligible, setFamilyEligible] = useState(false);
   const [checkingFamily, setCheckingFamily] = useState(false);
+  const [codeStatus, setCodeStatus] = useState<
+    { valid: true; percentOff?: number } | { valid: false } | null
+  >(null);
+  const [checkingCode, setCheckingCode] = useState(false);
   const tiers = useMemo(() => program.pricingTiers ?? [], [program.pricingTiers]);
 
   const registrationSchema = useMemo(
@@ -120,14 +125,36 @@ export function RegisterForm({
     }
   }
 
+  async function handleCodeBlur(code: string) {
+    if (!code.trim()) {
+      setCodeStatus(null);
+      return;
+    }
+    setCheckingCode(true);
+    try {
+      const res = await fetch("/api/discount-code/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      setCodeStatus(data.valid ? { valid: true, percentOff: data.percentOff } : { valid: false });
+    } catch {
+      setCodeStatus({ valid: false });
+    } finally {
+      setCheckingCode(false);
+    }
+  }
+
   const order = useMemo(() => {
     const inputs = watchedChildren.map((child) => {
       const tier = tiers.find((t) => t.label === child.packageLabel);
       const basePriceCents = tiers.length > 0 ? tier?.price ?? program.price : program.price;
       return { basePriceCents };
     });
-    return calculateOrder(inputs, familyEligible);
-  }, [watchedChildren, tiers, program.price, familyEligible]);
+    const codePercentOff = codeStatus?.valid ? codeStatus.percentOff : undefined;
+    return calculateOrder(inputs, familyEligible, codePercentOff);
+  }, [watchedChildren, tiers, program.price, familyEligible, codeStatus]);
 
   async function onSubmit(values: RegistrationValues) {
     setSubmitting(true);
@@ -204,6 +231,39 @@ export function RegisterForm({
                 <FormControl>
                   <Input type="tel" placeholder="(555) 123-4567" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="discountCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Promo or financial aid code (optional)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter a code"
+                    {...field}
+                    onBlur={(e) => {
+                      field.onBlur();
+                      handleCodeBlur(e.target.value);
+                    }}
+                  />
+                </FormControl>
+                {checkingCode && (
+                  <p className="text-xs text-muted-foreground">Checking code…</p>
+                )}
+                {codeStatus?.valid && !checkingCode && (
+                  <p className="text-xs font-medium text-primary">
+                    {codeStatus.percentOff != null
+                      ? `✓ Code applied — ${codeStatus.percentOff}% off`
+                      : "✓ Code applied — your final price will be shown after you submit"}
+                  </p>
+                )}
+                {codeStatus?.valid === false && !checkingCode && (
+                  <p className="text-xs text-destructive">That code isn&rsquo;t valid.</p>
+                )}
                 <FormMessage />
               </FormItem>
             )}
@@ -307,6 +367,14 @@ export function RegisterForm({
                 <span>SuhbahFamily discount</span>
                 <span>
                   −{formatPrice(order.children.reduce((s, c) => s + c.familyDiscountCents, 0))}
+                </span>
+              </div>
+            )}
+            {order.children.some((c) => c.codeDiscountCents > 0) && (
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span>Code discount</span>
+                <span>
+                  −{formatPrice(order.children.reduce((s, c) => s + c.codeDiscountCents, 0))}
                 </span>
               </div>
             )}
