@@ -133,10 +133,18 @@ export function Hero({
               <button
                 type="button"
                 onClick={() => setPlaying(true)}
-                className="group relative flex h-full w-full items-center justify-center bg-gradient-to-br from-primary to-[hsl(102,28%,28%)]"
+                className="group relative flex h-full w-full items-center justify-center"
                 aria-label="Play highlight video"
               >
-                <span className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-primary shadow-lg transition-transform group-hover:scale-110">
+                <Image
+                  src="/gallery/IMG_6717.jpeg"
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-ink/50 transition-colors group-hover:bg-ink/40" />
+                <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white text-primary shadow-lg transition-transform group-hover:scale-110">
                   <Play className="ml-1 h-8 w-8 fill-current" />
                 </span>
                 <span className="absolute bottom-6 rounded-full bg-black/50 px-4 py-1.5 text-sm font-semibold text-white">

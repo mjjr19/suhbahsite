@@ -20,7 +20,7 @@ export default async function CoachesPage() {
     <>
       <section className="relative flex h-[36vh] min-h-[280px] w-full items-end overflow-hidden bg-ink">
         <Image
-          src="/gallery/suhbah-team.png"
+          src="/gallery/IMG_5248.jpeg"
           alt="Suhbah Soccer team"
           fill
           priority
