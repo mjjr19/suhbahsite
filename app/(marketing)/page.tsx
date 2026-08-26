@@ -56,7 +56,7 @@ export default async function HomePage() {
           { value: "3", label: "Expert Coaches" },
           { value: "100%", label: "Faith-Focused" },
         ]}
-        youtubeId="WFHixrKzyGU"
+        youtubeId="UVf3Hb6fBxU"
       />
 
       <section className="py-20 sm:py-24">
