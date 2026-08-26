@@ -15,8 +15,14 @@ import type { Program, ProgramSession } from "@/types";
 import { RegisterForm } from "@/components/sections/RegisterForm";
 import { Reveal } from "@/components/motion/Reveal";
 import { formatPrice } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export const revalidate = 60;
+
+const GOOGLE_FORM_SLUGS: Record<string, string> = {
+  "fall-camp-2026":
+    "https://docs.google.com/forms/d/1tVr2MecvgUT6kHSF4aJnzHe6tj0PTpuCQy3ZQmLKGuY/viewform",
+};
 
 function formatDateRange(startDate?: string, endDate?: string) {
   if (!startDate) return "Dates TBD";
@@ -141,6 +147,22 @@ export default async function ProgramDetailPage({
                   <p className="mt-4 rounded-md bg-muted px-4 py-3 text-sm text-muted-foreground">
                     Registration for this program is currently closed.
                   </p>
+                ) : GOOGLE_FORM_SLUGS[program.slug] ? (
+                  <div className="mt-4">
+                    <p className="text-sm text-muted-foreground">
+                      Registration for this program is handled through our
+                      registration form.
+                    </p>
+                    <Button asChild className="mt-4 w-full">
+                      <a
+                        href={GOOGLE_FORM_SLUGS[program.slug]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Register Now
+                      </a>
+                    </Button>
+                  </div>
                 ) : (
                   <RegisterForm program={program} sessions={sessions} />
                 )}
