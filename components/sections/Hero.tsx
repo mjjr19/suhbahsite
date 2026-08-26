@@ -118,7 +118,7 @@ export function Hero({
         <motion.div variants={item} className="relative">
           <div
             aria-hidden
-            className="absolute -inset-3 rotate-2 rounded-2xl bg-[hsl(199,75%,48%)]/90 sm:-inset-4"
+            className="absolute -inset-3 rounded-2xl bg-gradient-to-br from-primary via-accent to-primary opacity-80 blur-xl sm:-inset-4"
           />
           <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-ink-border shadow-2xl">
             {playing ? (
